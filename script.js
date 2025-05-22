@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
+    const startSection = document.getElementById('start-section');
+    const quizArea = document.getElementById('quiz-area');
     const quizSection = document.getElementById('quiz-section');
     const resultSection = document.getElementById('result-section');
     const questionNumberSpan = document.getElementById('question-number');
@@ -15,18 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const retakeBtn = document.getElementById('retake-btn');
     const timerDisplay = document.getElementById('time');
     const progressBar = document.getElementById('progress-bar');
-    const passingStatus = document.getElementById('passing-status'); // New element for passing status
+    const passingStatus = document.getElementById('passing-status');
+    const jobCategoryRadios = document.querySelectorAll('input[name="job-category"]');
+    const startQuizBtn = document.getElementById('start-quiz-btn');
 
-    const NUM_QUESTIONS_TO_DISPLAY = 50; // Set to 50 questions
-    const EXAM_DURATION_MINUTES = 45; // 45 minutes
+    const EXAM_DURATION_MINUTES = 45;
     const PASSING_SCORE = 70; // Passing score threshold
 
-    let selectedQuestions = []; // To store the 50 randomly selected questions
+    let selectedQuestions = []; // To store the questions for the current quiz session
     let currentQuestionIndex = 0;
     let userAnswers = []; // To store user's selected answers
-    let correctAnswersCount = 0; // Track number of correct answers
-    let finalScore = 0; // Final score (correct answers * 2)
-    let timeLeft = EXAM_DURATION_MINUTES * 60; // Timer in seconds
+    let correctAnswersCount = 0;
+    let finalScore = 0;
+    let timeLeft = EXAM_DURATION_MINUTES * 60;
     let timerInterval;
 
     // --- Utility Function: Shuffle an array (Fisher-Yates algorithm) ---
@@ -63,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadQuestion() {
         if (currentQuestionIndex >= selectedQuestions.length) {
-            submitQuiz(); // Ensure submission if navigated beyond last question
+            submitQuiz();
             return;
         }
 
@@ -72,42 +75,37 @@ document.addEventListener('DOMContentLoaded', () => {
         questionTextDiv.textContent = question.question;
         optionsContainerDiv.innerHTML = ''; // Clear previous options
 
-        // Shuffle options for the current question (using the original options array to preserve A,B,C,D labeling)
-        // We'll only shuffle the order of display, not the actual string content
         const optionLabels = ['A', 'B', 'C', 'D'];
-        const shuffledOptionLabels = shuffleArray([...optionLabels]); // Shuffle A, B, C, D
+        const shuffledOptionLabels = shuffleArray([...optionLabels]);
 
-        // Map shuffled labels to original option content
         const displayOptions = shuffledOptionLabels.map(label => {
-            // Find the original option that matches this label
             return question.options.find(opt => opt.startsWith(label));
         });
 
-        displayOptions.forEach((optionContent, index) => {
-            if (!optionContent) return; // Skip if optionContent is undefined
+        displayOptions.forEach((optionContent) => {
+            if (!optionContent) return;
 
-            const originalLabel = optionContent.charAt(0); // Get original label (A, B, C, D)
+            const originalLabel = optionContent.charAt(0);
             const optionId = `q${currentQuestionIndex}-option${originalLabel}`;
             const radioInput = document.createElement('input');
             radioInput.type = 'radio';
             radioInput.id = optionId;
             radioInput.name = `question-${currentQuestionIndex}`;
-            radioInput.value = originalLabel; // Store the original label (A, B, C, D) as the value
+            radioInput.value = originalLabel;
 
-            // Check if user has already answered this question
             if (userAnswers[currentQuestionIndex] === radioInput.value) {
                 radioInput.checked = true;
             }
 
             radioInput.addEventListener('change', (event) => {
                 userAnswers[currentQuestionIndex] = event.target.value;
-                updateProgressBar(); // Update progress bar on answer change
+                updateProgressBar();
             });
 
             const label = document.createElement('label');
             label.htmlFor = optionId;
             const span = document.createElement('span');
-            span.textContent = optionContent; // Display the original option content
+            span.textContent = optionContent;
             label.appendChild(radioInput);
             label.appendChild(span);
             optionsContainerDiv.appendChild(label);
@@ -123,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateProgressBar() {
-        // Count how many questions have been answered
         const answeredQuestionsCount = userAnswers.filter(answer => answer !== null).length;
         const progressPercentage = (answeredQuestionsCount / selectedQuestions.length) * 100;
         progressBar.style.width = `${progressPercentage}%`;
@@ -140,39 +137,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function submitQuiz() {
-        stopTimer(); // Stop the timer
-        calculateResult(); // Calculate correct answers count and final score
+        stopTimer();
+        calculateResult();
 
-        quizSection.style.display = 'none';
+        quizArea.style.display = 'none';
         resultSection.style.display = 'block';
         scoreSpan.textContent = finalScore;
-        totalQuestionsSpan.textContent = NUM_QUESTIONS_TO_DISPLAY;
+        totalQuestionsSpan.textContent = selectedQuestions.length * 2; // Display max score
+        totalQuestionsSpan.textContent = selectedQuestions.length; // Display total questions answered (correctly)
 
-        // Determine passing status and apply copywriting
-        passingStatus.textContent = ''; // Clear previous status
-        passingStatus.classList.remove('lulus', 'gagal'); // Clear previous classes
+        passingStatus.textContent = '';
+        passingStatus.classList.remove('lulus', 'gagal');
 
         if (finalScore >= PASSING_SCORE) {
             passingStatus.textContent = "Selamat! Anda LULUS PKTBT!";
             passingStatus.classList.add('lulus');
-            passingStatus.innerHTML += `<br><small>Hasil kerja keras dan ketekunanmu terbayar tuntas. Pertahankan semangat ini!</small>`;
+            passingStatus.innerHTML += `<br><small>Hasil kerja keras dan ketekunanmu terbayar tuntas. Pertahankan semangat ini, langkahmu menuju karier cemerlang semakin dekat!</small>`;
         } else {
             passingStatus.textContent = "Maaf, Anda BELUM LULUS PKTBT.";
             passingStatus.classList.add('gagal');
-            passingStatus.innerHTML += `<br><small>Jangan menyerah! Setiap usaha adalah bagian dari perjalanan. Evaluasi jawaban Anda, pelajari lebih dalam, dan coba lagi dengan semangat baru!</small>`;
+            passingStatus.innerHTML += `<br><small>Jangan menyerah! Setiap usaha adalah bagian dari perjalanan. Evaluasi jawaban Anda, pelajari lebih dalam, dan coba lagi dengan semangat baru! Keberhasilan hanya tertunda, bukan terhalang.</small>`;
         }
 
-        // Disable all buttons in quiz section after submission
         prevBtn.disabled = true;
         nextBtn.disabled = true;
         submitBtn.disabled = true;
-        // Optionally disable radio buttons if you want to prevent further interaction
         const radioButtons = optionsContainerDiv.querySelectorAll('input[type="radio"]');
         radioButtons.forEach(radio => radio.disabled = true);
     }
 
     function reviewAnswers() {
-        answerReviewDiv.innerHTML = ''; // Clear previous review
+        answerReviewDiv.innerHTML = '';
         answerReviewDiv.style.display = 'block';
 
         selectedQuestions.forEach((q, index) => {
@@ -210,35 +205,77 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function resetQuiz() {
-        // Select 50 random questions from the full bank of questions
-        const shuffledBankQuestions = shuffleArray([...questions]); // Shuffle the entire bank
-        selectedQuestions = shuffledBankQuestions.slice(0, NUM_QUESTIONS_TO_DISPLAY); // Take the first 50
+    function prepareQuiz(category) {
+        let adminQuestionsForQuiz = [];
+        let substantiveQuestionsForQuiz = [];
+        const totalQuestions = 50;
+
+        if (category === 'fungsional-siaran') {
+            // Fungsional Siaran: 25 Administratif + 35 Substantif
+            adminQuestionsForQuiz = shuffleArray([...administrativeQuestions]).slice(0, 25);
+            substantiveQuestionsForQuiz = shuffleArray([...substantiveQuestions]).slice(0, 35);
+            selectedQuestions = shuffleArray([...adminQuestionsForQuiz, ...substantiveQuestionsForQuiz]); // Combine and re-shuffle
+        } else { // 'lainnya' (Administratif Umum)
+            // Lainnya: 50 Administratif
+            selectedQuestions = shuffleArray([...administrativeQuestions]).slice(0, 50);
+        }
 
         currentQuestionIndex = 0;
-        userAnswers = Array(selectedQuestions.length).fill(null); // Reset all answers to null for 50 questions
+        userAnswers = Array(selectedQuestions.length).fill(null);
         correctAnswersCount = 0;
         finalScore = 0;
-        timeLeft = EXAM_DURATION_MINUTES * 60; // Reset timer
-        stopTimer(); // Clear any existing timer
-        startTimer(); // Start a new timer
+        timeLeft = EXAM_DURATION_MINUTES * 60;
 
-        quizSection.style.display = 'block';
+        startSection.style.display = 'none';
+        quizArea.style.display = 'block'; // Show the quiz area
         resultSection.style.display = 'none';
-        answerReviewDiv.style.display = 'none'; // Hide review section
-        passingStatus.textContent = ''; // Clear passing status text
-        passingStatus.classList.remove('lulus', 'gagal'); // Clear passing status classes
+        answerReviewDiv.style.display = 'none';
+        passingStatus.textContent = '';
+        passingStatus.classList.remove('lulus', 'gagal');
 
-        // Re-enable quiz buttons
         prevBtn.disabled = false;
         nextBtn.disabled = false;
         submitBtn.disabled = false;
 
+        stopTimer(); // Clear any existing timer
+        startTimer(); // Start a new timer
+
         loadQuestion();
-        updateProgressBar(); // Initialize progress bar
+        updateProgressBar();
     }
 
+    function resetToStartScreen() {
+        startSection.style.display = 'block';
+        quizArea.style.display = 'none';
+        resultSection.style.display = 'none';
+        answerReviewDiv.style.display = 'none';
+        passingStatus.textContent = '';
+        passingStatus.classList.remove('lulus', 'gagal');
+        stopTimer(); // Ensure timer is stopped if returning from quiz/results
+        timerDisplay.textContent = `${String(EXAM_DURATION_MINUTES).padStart(2, '0')}:00`; // Reset timer display
+
+        // Uncheck all radios and disable start button
+        jobCategoryRadios.forEach(radio => radio.checked = false);
+        startQuizBtn.disabled = true;
+    }
+
+
     // --- Event Listeners ---
+
+    jobCategoryRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            startQuizBtn.disabled = false; // Enable start button when a choice is made
+        });
+    });
+
+    startQuizBtn.addEventListener('click', () => {
+        const selectedCategory = document.querySelector('input[name="job-category"]:checked');
+        if (selectedCategory) {
+            prepareQuiz(selectedCategory.value);
+        } else {
+            alert('Mohon pilih kategori ujian terlebih dahulu.');
+        }
+    });
 
     prevBtn.addEventListener('click', () => {
         if (currentQuestionIndex > 0) {
@@ -256,8 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     submitBtn.addEventListener('click', submitQuiz);
     reviewBtn.addEventListener('click', reviewAnswers);
-    retakeBtn.addEventListener('click', resetQuiz);
+    retakeBtn.addEventListener('click', resetToStartScreen); // Change to go back to start screen
 
-    // Initial load when page is ready
-    resetQuiz(); // Start the quiz and timer
+    // Initial load
+    resetToStartScreen(); // Start by showing the selection screen
 });
