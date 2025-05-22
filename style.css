@@ -204,6 +204,29 @@ button:disabled {
     border-left: 5px solid #dc3545;
 }
 
+/* Styling for passing status */
+#passing-status {
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+#passing-status.lulus {
+    background-color: #d4edda; /* Light green */
+    color: #155724; /* Dark green */
+    border: 1px solid #c3e6cb;
+}
+
+#passing-status.gagal {
+    background-color: #f8d7da; /* Light red */
+    color: #721c24; /* Dark red */
+    border: 1px solid #f5c6cb;
+}
+
+
 @media (max-width: 600px) {
     .container {
         padding: 20px;
