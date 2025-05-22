@@ -15,12 +15,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const retakeBtn = document.getElementById('retake-btn');
     const timerDisplay = document.getElementById('time');
     const progressBar = document.getElementById('progress-bar');
+    const passingStatus = document.getElementById('passing-status'); // New element for passing status
 
-    let shuffledQuestions = []; // To store shuffled questions
+    const NUM_QUESTIONS_TO_DISPLAY = 50; // Set to 50 questions
+    const EXAM_DURATION_MINUTES = 45; // 45 minutes
+    const PASSING_SCORE = 70; // Passing score threshold
+
+    let selectedQuestions = []; // To store the 50 randomly selected questions
     let currentQuestionIndex = 0;
     let userAnswers = []; // To store user's selected answers
-    let score = 0;
-    let timeLeft = 45 * 60; // 45 minutes in seconds
+    let correctAnswersCount = 0; // Track number of correct answers
+    let finalScore = 0; // Final score (correct answers * 2)
+    let timeLeft = EXAM_DURATION_MINUTES * 60; // Timer in seconds
     let timerInterval;
 
     // --- Utility Function: Shuffle an array (Fisher-Yates algorithm) ---
@@ -38,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 submitQuiz(); // Auto-submit when time runs out
-                alert('Waktu ujian habis!');
+                alert('Waktu ujian habis! Jawaban Anda otomatis disubmit.');
                 return;
             }
 
@@ -56,26 +62,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Core Quiz Functions ---
 
     function loadQuestion() {
-        if (currentQuestionIndex >= shuffledQuestions.length) {
+        if (currentQuestionIndex >= selectedQuestions.length) {
             submitQuiz(); // Ensure submission if navigated beyond last question
             return;
         }
 
-        const question = shuffledQuestions[currentQuestionIndex];
-        questionNumberSpan.textContent = `Soal ${currentQuestionIndex + 1} dari ${shuffledQuestions.length}`;
+        const question = selectedQuestions[currentQuestionIndex];
+        questionNumberSpan.textContent = `Soal ${currentQuestionIndex + 1} dari ${selectedQuestions.length}`;
         questionTextDiv.textContent = question.question;
         optionsContainerDiv.innerHTML = ''; // Clear previous options
 
-        // Shuffle options for the current question
-        const shuffledOptions = shuffleArray([...question.options]); // Create a copy to shuffle
+        // Shuffle options for the current question (using the original options array to preserve A,B,C,D labeling)
+        // We'll only shuffle the order of display, not the actual string content
+        const optionLabels = ['A', 'B', 'C', 'D'];
+        const shuffledOptionLabels = shuffleArray([...optionLabels]); // Shuffle A, B, C, D
 
-        shuffledOptions.forEach((option, index) => {
-            const optionId = `q${currentQuestionIndex}-option${option.charAt(0)}`; // Use actual option char (A,B,C,D) for ID
+        // Map shuffled labels to original option content
+        const displayOptions = shuffledOptionLabels.map(label => {
+            // Find the original option that matches this label
+            return question.options.find(opt => opt.startsWith(label));
+        });
+
+        displayOptions.forEach((optionContent, index) => {
+            if (!optionContent) return; // Skip if optionContent is undefined
+
+            const originalLabel = optionContent.charAt(0); // Get original label (A, B, C, D)
+            const optionId = `q${currentQuestionIndex}-option${originalLabel}`;
             const radioInput = document.createElement('input');
             radioInput.type = 'radio';
             radioInput.id = optionId;
             radioInput.name = `question-${currentQuestionIndex}`;
-            radioInput.value = option.charAt(0); // Get A, B, C, D
+            radioInput.value = originalLabel; // Store the original label (A, B, C, D) as the value
 
             // Check if user has already answered this question
             if (userAnswers[currentQuestionIndex] === radioInput.value) {
@@ -90,45 +107,60 @@ document.addEventListener('DOMContentLoaded', () => {
             const label = document.createElement('label');
             label.htmlFor = optionId;
             const span = document.createElement('span');
-            span.textContent = option;
+            span.textContent = optionContent; // Display the original option content
             label.appendChild(radioInput);
             label.appendChild(span);
             optionsContainerDiv.appendChild(label);
         });
 
         updateNavigationButtons();
-        updateProgressBar();
     }
 
     function updateNavigationButtons() {
         prevBtn.disabled = currentQuestionIndex === 0;
-        nextBtn.style.display = currentQuestionIndex === shuffledQuestions.length - 1 ? 'none' : 'inline-block';
-        submitBtn.style.display = currentQuestionIndex === shuffledQuestions.length - 1 ? 'inline-block' : 'none';
+        nextBtn.style.display = currentQuestionIndex === selectedQuestions.length - 1 ? 'none' : 'inline-block';
+        submitBtn.style.display = currentQuestionIndex === selectedQuestions.length - 1 ? 'inline-block' : 'none';
     }
 
     function updateProgressBar() {
         // Count how many questions have been answered
         const answeredQuestionsCount = userAnswers.filter(answer => answer !== null).length;
-        const progressPercentage = (answeredQuestionsCount / shuffledQuestions.length) * 100;
+        const progressPercentage = (answeredQuestionsCount / selectedQuestions.length) * 100;
         progressBar.style.width = `${progressPercentage}%`;
     }
 
-    function calculateScore() {
-        score = 0;
-        shuffledQuestions.forEach((q, index) => {
+    function calculateResult() {
+        correctAnswersCount = 0;
+        selectedQuestions.forEach((q, index) => {
             if (userAnswers[index] === q.answer) {
-                score++;
+                correctAnswersCount++;
             }
         });
+        finalScore = correctAnswersCount * 2; // Score is correct answers * 2
     }
 
     function submitQuiz() {
         stopTimer(); // Stop the timer
-        calculateScore();
+        calculateResult(); // Calculate correct answers count and final score
+
         quizSection.style.display = 'none';
         resultSection.style.display = 'block';
-        scoreSpan.textContent = score;
-        totalQuestionsSpan.textContent = shuffledQuestions.length;
+        scoreSpan.textContent = finalScore;
+        totalQuestionsSpan.textContent = NUM_QUESTIONS_TO_DISPLAY;
+
+        // Determine passing status and apply copywriting
+        passingStatus.textContent = ''; // Clear previous status
+        passingStatus.classList.remove('lulus', 'gagal'); // Clear previous classes
+
+        if (finalScore >= PASSING_SCORE) {
+            passingStatus.textContent = "Selamat! Anda LULUS PKTBT!";
+            passingStatus.classList.add('lulus');
+            passingStatus.innerHTML += `<br><small>Hasil kerja keras dan ketekunanmu terbayar tuntas. Pertahankan semangat ini!</small>`;
+        } else {
+            passingStatus.textContent = "Maaf, Anda BELUM LULUS PKTBT.";
+            passingStatus.classList.add('gagal');
+            passingStatus.innerHTML += `<br><small>Jangan menyerah! Setiap usaha adalah bagian dari perjalanan. Evaluasi jawaban Anda, pelajari lebih dalam, dan coba lagi dengan semangat baru!</small>`;
+        }
 
         // Disable all buttons in quiz section after submission
         prevBtn.disabled = true;
@@ -143,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         answerReviewDiv.innerHTML = ''; // Clear previous review
         answerReviewDiv.style.display = 'block';
 
-        shuffledQuestions.forEach((q, index) => {
+        selectedQuestions.forEach((q, index) => {
             const userAnswer = userAnswers[index];
             const isCorrect = userAnswer === q.answer;
 
@@ -179,19 +211,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetQuiz() {
-        // Shuffle questions for a new quiz session
-        shuffledQuestions = shuffleArray([...questions]); // Use a copy of the original questions array
+        // Select 50 random questions from the full bank of questions
+        const shuffledBankQuestions = shuffleArray([...questions]); // Shuffle the entire bank
+        selectedQuestions = shuffledBankQuestions.slice(0, NUM_QUESTIONS_TO_DISPLAY); // Take the first 50
 
         currentQuestionIndex = 0;
-        userAnswers = Array(shuffledQuestions.length).fill(null); // Reset all answers to null
-        score = 0;
-        timeLeft = 45 * 60; // Reset timer
+        userAnswers = Array(selectedQuestions.length).fill(null); // Reset all answers to null for 50 questions
+        correctAnswersCount = 0;
+        finalScore = 0;
+        timeLeft = EXAM_DURATION_MINUTES * 60; // Reset timer
         stopTimer(); // Clear any existing timer
         startTimer(); // Start a new timer
 
         quizSection.style.display = 'block';
         resultSection.style.display = 'none';
         answerReviewDiv.style.display = 'none'; // Hide review section
+        passingStatus.textContent = ''; // Clear passing status text
+        passingStatus.classList.remove('lulus', 'gagal'); // Clear passing status classes
 
         // Re-enable quiz buttons
         prevBtn.disabled = false;
@@ -212,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     nextBtn.addEventListener('click', () => {
-        if (currentQuestionIndex < shuffledQuestions.length - 1) {
+        if (currentQuestionIndex < selectedQuestions.length - 1) {
             currentQuestionIndex++;
             loadQuestion();
         }
