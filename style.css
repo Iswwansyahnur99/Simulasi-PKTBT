@@ -25,6 +25,50 @@ h1, h2 {
     margin-bottom: 25px;
 }
 
+/* Start Section Styling */
+.start-section {
+    text-align: center;
+    padding: 30px;
+    background-color: #eef7fc;
+    border-radius: 10px;
+    border: 1px solid #cce7fa;
+}
+
+.start-section p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    color: #555;
+}
+
+.job-selection label {
+    display: block;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background-color: #f0f8ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.job-selection label:hover {
+    background-color: #e3f2fd;
+    border-color: #8ac0f0;
+}
+
+.job-selection input[type="radio"] {
+    margin-right: 10px;
+    transform: scale(1.1);
+}
+
+.job-selection input[type="radio"]:checked + label {
+    background-color: #cce7fa;
+    border-color: #007bff;
+    font-weight: bold;
+}
+
+
+/* Quiz Header (Timer & Progress Bar) */
 #quiz-header {
     display: flex;
     justify-content: space-between;
@@ -130,6 +174,14 @@ button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
     transform: none;
+}
+
+#start-quiz-btn {
+    background-color: #28a745;
+    margin-top: 20px;
+}
+#start-quiz-btn:hover {
+    background-color: #218838;
 }
 
 #submit-btn {
