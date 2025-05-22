@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Ujian PKTBT (test2 berhadiah)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Simulasi Ujian PKTBT (test2 berhadiahs</h1>
+
+        <div id="quiz-header">
+            <div id="timer">Waktu: <span id="time">45:00</span></div>
+            <div id="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div id="quiz-section">
+            <div id="question-number"></div>
+            <div id="question-text"></div>
+            <div id="options-container" class="options-container"></div>
+            <div class="navigation-buttons">
+                <button id="prev-btn">Sebelumnya</button>
+                <button id="next-btn">Selanjutnya</button>
+                <button id="submit-btn" style="display:none;">Selesai Ujian</button>
+            </div>
+        </div>
+
+        <div id="result-section" style="display:none;">
+            <h2>Hasil Ujian</h2>
+            <p>Skor Anda: <span id="score"></span> dari <span id="total-questions"></span></p>
+            <button id="review-btn">Lihat Kunci Jawaban</button>
+            <div id="answer-review" class="answer-review" style="display:none;"></div>
+            <button id="retake-btn">Ulangi Ujian</button>
+        </div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

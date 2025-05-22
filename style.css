@@ -1,0 +1,231 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align at the top */
+    min-height: 100vh;
+    margin: 20px;
+    color: #333;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+}
+
+h1, h2 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+#quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+#timer {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #e74c3c; /* Red color for timer */
+}
+
+#progress-bar-container {
+    width: 60%;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    height: 10px;
+    overflow: hidden;
+}
+
+#progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: #2ecc71; /* Green color for progress */
+    border-radius: 5px;
+    transition: width 0.3s ease-in-out;
+}
+
+
+#quiz-section, #result-section {
+    margin-top: 20px;
+}
+
+#question-number {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #555;
+}
+
+#question-text {
+    font-size: 1.25em;
+    margin-bottom: 25px;
+    line-height: 1.6;
+    background-color: #e8f4f8;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 5px solid #3498db;
+}
+
+.options-container label {
+    display: block;
+    background-color: #f8f8f8;
+    padding: 15px 20px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    border: 1px solid #ddd;
+}
+
+.options-container label:hover {
+    background-color: #eef7fc;
+    border-color: #aaddff;
+}
+
+.options-container input[type="radio"] {
+    margin-right: 15px;
+    transform: scale(1.2);
+}
+
+.options-container input[type="radio"]:checked + span {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#submit-btn {
+    background-color: #28a745;
+}
+
+#submit-btn:hover {
+    background-color: #218838;
+}
+
+#review-btn, #retake-btn {
+    display: block;
+    width: fit-content;
+    margin: 25px auto 15px;
+    background-color: #6c757d;
+}
+
+#review-btn:hover, #retake-btn:hover {
+    background-color: #5a6268;
+}
+
+.answer-review {
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.answer-item {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.answer-item p {
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+}
+
+.answer-item .question-text-review {
+    font-weight: bold;
+    color: #34495e;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+.answer-item .your-answer {
+    color: #dc3545; /* Red for incorrect */
+    font-weight: bold;
+}
+
+.answer-item .correct-answer {
+    color: #28a745; /* Green for correct */
+    font-weight: bold;
+}
+
+.answer-item .explanation {
+    font-style: italic;
+    color: #666;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #eee;
+}
+
+.answer-item.correct {
+    border-left: 5px solid #28a745;
+}
+
+.answer-item.incorrect {
+    border-left: 5px solid #dc3545;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
+
+    .navigation-buttons button {
+        width: 48%;
+        margin-bottom: 10px;
+        padding: 10px;
+    }
+
+    .navigation-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    #quiz-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    #progress-bar-container {
+        width: 100%;
+    }
+}
